@@ -13,6 +13,7 @@ const ImageSlider = ({ images }: ImageProps) => {
     const animation = useRef(new Animated.Value(0));
     const [currentImage, setCurrentImage] = useState(0);
 
+
     const handleAnimation = () => {
         let newCurrentImage = currentImage + 1;
         if (newCurrentImage > images.length - 1) {
@@ -20,7 +21,7 @@ const ImageSlider = ({ images }: ImageProps) => {
         }
 
         Animated.spring(animation.current, {
-            toValue: -(Dimensions.get("screen").width * newCurrentImage),
+            toValue: -(Max_Width * newCurrentImage),
             useNativeDriver: true,
         }).start();
 
@@ -34,7 +35,12 @@ const ImageSlider = ({ images }: ImageProps) => {
             <View>
                 <Animated.View style={[styles.container, { transform: [{ translateX: animation.current }] }]}>
                     {images.map((image, index) => (
-                        <Image key={index} source={image} style={styles.image} />
+                        <Image
+                            key={index}
+                            source={{ uri: (image as any).uri }}
+                            style={styles.image}
+                        />
+
                     ))}
                 </Animated.View>
             </View>

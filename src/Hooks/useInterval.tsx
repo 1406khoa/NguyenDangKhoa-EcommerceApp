@@ -21,7 +21,7 @@ export function useInterval(callback: () => void, delay: number | null) {
         }, delay);
 
         return () => {
-            clearInterval(id); // ✅ Đã sửa lỗi
+            clearInterval(id);
         };
     }, [delay]);
 }
