@@ -14,7 +14,7 @@ export const HeadersComponent = ({ goToPrevios, search, cartLength, gotoCartScre
     const [searchInput, setSearchInput] = useState("");
     
     return (
-        <View style={{ backgroundColor: "#000", padding: 10, flexDirection: "row", alignItems: "center" }}>
+        <View style={{ backgroundColor: "blue", padding: 10, flexDirection: "row", alignItems: "center" }}>
             <GoBack onPress={goToPrevios} />
             <Pressable 
                 style={{

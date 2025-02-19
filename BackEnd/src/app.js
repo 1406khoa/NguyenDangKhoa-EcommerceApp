@@ -13,4 +13,11 @@ app.use("/images", express.static(path.join(__dirname, "../public/images")));
 app.use("/api/products", require("./routes/productRoute"));
 app.use("/api/upload", require("./routes/uploadImageRoute"));
 
+// Danh mục thể loại sản phẩm
+app.use("/api/categories", require("./routes/categoryRoute"));
+
+// Giỏ hàng
+app.use("/api/cart", require("./routes/cartRoute"));
+
+
 module.exports = app;
