@@ -16,15 +16,18 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   };
 
   const [sliderImages, setSliderImages] = useState<ImageSourcePropType[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]); // ✅ Chỉ định kiểu dữ liệu
+  const [categories, setCategories] = useState<Category[]>([]); // dùng để lưu danh sách danh mục
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [products, setProducts] = useState<Product[]>([]); // ✅ Chỉ định kiểu dữ liệu
+  const [products, setProducts] = useState<Product[]>([]); // dùng để lưu danh sách sản phẩm của danh mục hiện tại
+  
+  const [allProducts, setAllProducts] = useState<Product[]>([]); // dùng để lưu danh sách tất cả sản phẩm
 
   // ✅ Lấy danh sách sản phẩm cho ImageSlider (TẤT CẢ sản phẩm)
   useEffect(() => {
     axios
       .get<Product[]>("http://10.0.2.2:5000/api/products")
       .then((response) => {
+        setAllProducts(response.data);
         const imagesFromAPI = response.data.flatMap((product) =>
           product.images.map((img) => ({ uri: `http://10.0.2.2:5000${img.uri}` }))
         );
@@ -33,6 +36,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
       .catch((error) => console.error(error));
   }, []);
 
+  // ✅ Lấy danh sách danh mục
   useEffect(() => {
     axios
       .get<Category[]>("http://10.0.2.2:5000/api/categories")
@@ -44,7 +48,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
 
 
 
-
+  // ✅ Lấy danh sách sản phẩm cho danh mục hiện tại
   useEffect(() => {
     if (categories.length > 0) {
       axios
@@ -55,7 +59,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
         .catch((error) => console.error(error));
     }
   }, [currentIndex, categories]);
-  
+
 
   // ✅ Chuyển danh mục kế tiếp
   const handleNext = () => {
@@ -69,7 +73,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white", padding: 0 }}>
-      <HeadersComponent gotoCartScreen={gotoCartScreen} />
+      <HeadersComponent gotoCartScreen={gotoCartScreen} allProducts={allProducts} />
 
       {/* ✅ Image Slider hiển thị tất cả sản phẩm */}
       <View>
@@ -94,7 +98,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
               navigation.navigate("CategoryScreen", {
                 categoryId: categories[currentIndex]?._id,
                 categoryName: categories[currentIndex]?.name,
-                products: products, // ✅ Truyền danh sách sản phẩm luôn
+                products: products, // ✅ Truyền danh sách sản phẩm
               })
             }
           />
@@ -106,7 +110,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
         </TouchableOpacity>
       </View>
 
-      
+
     </SafeAreaView>
   );
 };

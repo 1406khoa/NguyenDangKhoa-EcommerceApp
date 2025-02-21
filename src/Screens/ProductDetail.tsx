@@ -8,6 +8,8 @@ import { AntDesign } from "@expo/vector-icons";
 type Props = StackScreenProps<RootStackParams, "ProductDetail">;
 
 const ProductDetail = ({ route, navigation }: Props) => {
+
+  const userId = "user123"; // Giả lập userId, có thể lấy từ context hoặc storage
   const { productId } = route.params;
   const [product, setProduct] = useState<any>(null);
 
@@ -28,6 +30,32 @@ const ProductDetail = ({ route, navigation }: Props) => {
     );
   }
 
+  const handleAddToCart = async () => {
+    try {
+      const response = await axios.post("http://10.0.2.2:5000/api/cart/add", {
+        userId,
+        productId: product._id, // ID sản phẩm
+        quantity: 1, // Số lượng mặc định là 1
+      });
+
+      if (response.status === 200) {
+        console.log("Response full data:", response.data);
+        console.log("Cart items:", response.data.items);
+        if (response.data.items) {
+          response.data.items.forEach((item: any, index: any) => {
+            console.log(`Item ${index}:`, item);
+          });
+        }
+
+        alert("Đã thêm vào giỏ hàng!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      alert("Có lỗi xảy ra!");
+    }
+  };
+
+
   return (
     <ScrollView style={styles.container}>
 
@@ -43,7 +71,7 @@ const ProductDetail = ({ route, navigation }: Props) => {
         <Text style={styles.productDescription}>{product.description}</Text>
 
         {/* Nút mua hàng */}
-        <TouchableOpacity style={styles.buyButton}>
+        <TouchableOpacity style={styles.buyButton} onPress={handleAddToCart}>
           <Text style={styles.buyButtonText}>Thêm vào giỏ hàng</Text>
         </TouchableOpacity>
       </View>

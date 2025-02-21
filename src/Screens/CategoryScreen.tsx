@@ -22,8 +22,8 @@ const CategoryScreen = ({ route, navigation }: Props) => {
             onPress={() => navigation.navigate("ProductDetail", { productId: item._id })} // ✅ Điều hướng đến ProductDetail
           >
             <Image source={{ uri: `http://10.0.2.2:5000${item.images[0].uri}` }} style={styles.image} />
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.price}>{item.price} $</Text>
+            <Text style={styles.name}>{item.name} </Text>
+            <Text style={styles.price}>Price: {item.price}$</Text>
           </TouchableOpacity>
 
         )}
