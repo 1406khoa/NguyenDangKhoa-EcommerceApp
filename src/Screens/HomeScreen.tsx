@@ -1,5 +1,5 @@
 import { Category, Product } from "../TypesCheck/GlobalTypes"; // ✅ Import types từ `TypesCheck`
-import { View, Text, Platform, ScrollView, ImageSourcePropType, TouchableOpacity } from "react-native";
+import { View, Text, Platform, ScrollView, ImageSourcePropType, TouchableOpacity, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import { TabsStackScreenProps } from "../Navigation/TabsNavigation";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,6 +7,10 @@ import HeadersComponent from "../Components/HeaderComponents/HeaderComponent";
 import ImageSlider from "../Components/HomeScreenComponents/ImageSlider";
 import CategoryCard from "../Components/HomeScreenComponents/CategoryCard";
 import { AntDesign } from "@expo/vector-icons";
+import { useRef } from "react";
+import { Image } from "react-native";
+
+import Slider from "@react-native-community/slider";
 import axios from "axios";
 
 // ✅ Định nghĩa kiểu dữ liệu cho useState để tránh lỗi 'never'
@@ -19,8 +23,17 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const [categories, setCategories] = useState<Category[]>([]); // dùng để lưu danh sách danh mục
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [products, setProducts] = useState<Product[]>([]); // dùng để lưu danh sách sản phẩm của danh mục hiện tại
-  
+
   const [allProducts, setAllProducts] = useState<Product[]>([]); // dùng để lưu danh sách tất cả sản phẩm
+
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000); // Giới hạn giá tối đa, có thể điều chỉnh
+
+  const tempPrice = useRef(maxPrice);
+
+  const filteredProducts = allProducts.filter(
+    (product) => product.price >= minPrice && product.price <= maxPrice
+  );
 
   // ✅ Lấy danh sách sản phẩm cho ImageSlider (TẤT CẢ sản phẩm)
   useEffect(() => {
@@ -110,6 +123,42 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
         </TouchableOpacity>
       </View>
 
+      <View style={{ padding: 20 }}>
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>Lọc theo giá</Text>
+
+        <Text>Giá từ: ${minPrice} - ${maxPrice}</Text>
+
+        <Slider
+          minimumValue={0}
+          maximumValue={2000}
+          step={50}
+          value={tempPrice.current} // Dùng giá trị tạm thời
+          onValueChange={(value) => {
+            tempPrice.current = value; // Cập nhật giá trị tạm thời (tránh re-render)
+          }}
+          onSlidingComplete={(value) => {
+            setMaxPrice(value); // Chỉ cập nhật state khi thả tay
+          }}
+        />
+
+        <Text>Sản phẩm hiển thị: {filteredProducts.length}</Text>
+
+        {filteredProducts.map((product) => (
+          <ScrollView style={{ maxHeight: 400 }}> 
+          {filteredProducts.map((product) => (
+            <View key={product._id} style={{ marginVertical: 10, flexDirection: "row", alignItems: "center" }}>
+              <Image
+                source={{ uri: `http://10.0.2.2:5000${product.images[0].uri}` }}
+                style={{ width: 80, height: 80, marginRight: 10, borderRadius: 8 }}
+                resizeMode="cover"
+              />
+              <Text style={{ fontSize: 16 }}>{product.name} - ${product.price}</Text>
+            </View>
+          ))}
+        </ScrollView>
+
+        ))}
+      </View>
 
     </SafeAreaView>
   );
