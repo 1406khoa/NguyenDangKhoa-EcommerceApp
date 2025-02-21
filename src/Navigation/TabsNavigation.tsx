@@ -13,7 +13,7 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 export type TabsStackParams = {
     Home: undefined;
     Cart: undefined;
-    Payment: undefined;
+    Payment: {totalPrice: number};
     Profile: undefined;
 };
 

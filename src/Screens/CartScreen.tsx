@@ -123,7 +123,7 @@ const CartScreen = ({ navigation }: Props) => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
-        <Text style = {{alignSelf: "center", fontSize: 25, fontWeight: 600, marginTop: 10}}>Giỏ Hàng</Text>
+        <Text style={{ alignSelf: "center", fontSize: 25, fontWeight: 600, marginTop: 10 }}>Giỏ Hàng</Text>
         <FlatList
           data={cart.items}
           keyExtractor={(item) => item._id}
@@ -151,9 +151,19 @@ const CartScreen = ({ navigation }: Props) => {
             <Text style={styles.totalPriceText}>Tổng tiền:</Text>
             <Text style={styles.totalPriceAmount}>${cart?.totalPrice ?? 0}</Text>
           </View>
-          <TouchableOpacity style={styles.checkoutButton}>
+          <TouchableOpacity
+            style={styles.checkoutButton}
+            onPress={() => {
+              if (cart?.totalPrice !== undefined) {
+                navigation.navigate("Payment", { totalPrice: cart.totalPrice });
+              } else {
+                alert("Giỏ hàng trống hoặc chưa tải xong!");
+              }
+            }}
+          >
             <Text style={styles.checkoutButtonText}>Tiến hành thanh toán</Text>
           </TouchableOpacity>
+
         </View>
 
         <Modal visible={editModalVisible} transparent animationType="slide">

@@ -19,5 +19,6 @@ app.use("/api/categories", require("./routes/categoryRoute"));
 // Giỏ hàng
 app.use("/api/cart", require("./routes/cartRoute"));
 
-
+// Thanh toán
+app.use("/api/payment", require("./routes/paymentRoute"));
 module.exports = app;

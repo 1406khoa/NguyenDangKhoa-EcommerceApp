@@ -12,6 +12,7 @@ export type RootStackParams = {
     TabsStack: undefined
     CategoryScreen: { categoryId: string; categoryName: string; products: Product[] }; // ✅ Thêm categoryName & products
     ProductDetail: { productId: string }; // ✅ Thêm ProductDetail vào danh sách điều hướng
+    
 }
 
 const RootStack = createNativeStackNavigator<RootStackParams>();

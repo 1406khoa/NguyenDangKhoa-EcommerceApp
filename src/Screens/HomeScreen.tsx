@@ -143,8 +143,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
 
         <Text>Sản phẩm hiển thị: {filteredProducts.length}</Text>
 
-        {filteredProducts.map((product) => (
-          <ScrollView style={{ maxHeight: 400 }}> 
+        <ScrollView style={{ maxHeight: 400 }}>
           {filteredProducts.map((product) => (
             <View key={product._id} style={{ marginVertical: 10, flexDirection: "row", alignItems: "center" }}>
               <Image
@@ -157,7 +156,6 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
           ))}
         </ScrollView>
 
-        ))}
       </View>
 
     </SafeAreaView>
