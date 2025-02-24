@@ -1,6 +1,6 @@
 import { Category, Product } from "../TypesCheck/GlobalTypes"; // ✅ Import types từ `TypesCheck`
 import { View, Text, Platform, ScrollView, ImageSourcePropType, TouchableOpacity, FlatList } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { TabsStackScreenProps } from "../Navigation/TabsNavigation";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HeadersComponent from "../Components/HeaderComponents/HeaderComponent";
@@ -12,12 +12,15 @@ import { Image } from "react-native";
 
 import Slider from "@react-native-community/slider";
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 // ✅ Định nghĩa kiểu dữ liệu cho useState để tránh lỗi 'never'
 const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const gotoCartScreen = () => {
     navigation.navigate("Cart");
   };
+
+  const [cartLength, setCartLength] = useState(0);
 
   const [sliderImages, setSliderImages] = useState<ImageSourcePropType[]>([]);
   const [categories, setCategories] = useState<Category[]>([]); // dùng để lưu danh sách danh mục
@@ -34,6 +37,27 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const filteredProducts = allProducts.filter(
     (product) => product.price >= minPrice && product.price <= maxPrice
   );
+
+  // ✅ Hàm lấy số lượng sản phẩm trong giỏ hàng từ API
+  const fetchCartLength = () => {
+    axios
+      .get(`http://10.0.2.2:5000/api/cart/user123`)
+      .then((response) => {
+        const items = response.data?.items ?? [];
+        setCartLength(items.length);
+      })
+      .catch((error) => {
+        console.error("❌ Lỗi khi lấy số lượng giỏ hàng:", error);
+        setCartLength(0);
+      });
+  };
+
+    // ✅ Gọi fetchCartLength khi HomeScreen được focus
+    useFocusEffect(
+      useCallback(() => {
+        fetchCartLength();
+      }, [])
+    );
 
   // ✅ Lấy danh sách sản phẩm cho ImageSlider (TẤT CẢ sản phẩm)
   useEffect(() => {
@@ -86,7 +110,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white", padding: 0 }}>
-      <HeadersComponent gotoCartScreen={gotoCartScreen} allProducts={allProducts} />
+      <HeadersComponent gotoCartScreen={gotoCartScreen} allProducts={allProducts} cartLength={cartLength} />
 
       {/* ✅ Image Slider hiển thị tất cả sản phẩm */}
       <View>

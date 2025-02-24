@@ -64,7 +64,7 @@ export const HeadersComponent = ({ goToPrevios, cartLength, gotoCartScreen, allP
         </Pressable>
         <Pressable onPress={gotoCartScreen}>
           <View style={styles.cartNum}>
-            <Text style={{ color: "pink" }}>{cartLength}</Text>
+            <Text style={{ color: "pink",  lineHeight: 18, textAlign: "left" }}>{cartLength}</Text>
           </View>
           <MaterialIcons name="shopping-cart" size={24} color={"white"} style={{ padding: 5, marginTop: 3 }} />
         </Pressable>

@@ -9,7 +9,6 @@ interface ImageProps {
 }
 
 const Max_Width = Dimensions.get("screen").width;
-const IMAGE_HEIGHT = Max_Width * 0.5; // ✅ Định nghĩa chiều cao ảnh dựa trên chiều rộng
 const ImageSlider = ({ images }: ImageProps) => {
     const animation = useRef(new Animated.Value(0));
     const [currentImage, setCurrentImage] = useState(0);
