@@ -7,14 +7,16 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Swipeable, GestureHandlerRootView } from "react-native-gesture-handler";
-import HeadersComponent from "../Components/HeaderComponents/HeaderComponent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 type Props = TabsStackScreenProps<"Cart">;
 
-// Giả lập userId (lấy từ auth nếu có)
-const userId = "user123";
 
 const CartScreen = ({ navigation }: Props) => {
+
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [cart, setCart] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,27 +25,55 @@ const CartScreen = ({ navigation }: Props) => {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [newQuantity, setNewQuantity] = useState(1);
 
+  // Lấy userId từ AsyncStorage (đã được lưu khi đăng nhập)
+  const fetchUserId = async () => {
+    try {
+      const userStr = await AsyncStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setUserId(user._id);
+      } else {
+        setUserId(null);
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy thông tin user:", error);
+    }
+  };
+
 
   // Hàm lấy giỏ hàng
   const fetchCart = () => {
     axios
       .get(`http://10.0.2.2:5000/api/cart/${userId}`)
       .then((response) => {
-        console.log("🛒 Cập nhật giỏ hàng:", response.data);
+        console.log(userId);
         setCart({ ...response.data });
         setLoading(false);
       })
       .catch((error) => {
+        console.log(userId);
         console.error("❌ Lỗi khi lấy giỏ hàng:", error);
         setCart({ items: [], totalPrice: 0 }); // Nếu lỗi, set giỏ hàng trống
         setLoading(false);
       });
   };
 
+  useEffect(() => {
+    fetchUserId();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchCart();
+    }
+  }, [userId]);
+
   useFocusEffect(
     useCallback(() => {
-      fetchCart(); // Cập nhật giỏ hàng mỗi khi vào lại trang
-    }, [])
+      if (userId) {
+        fetchCart();
+      }
+    }, [userId])
   );
 
   if (loading) {
@@ -154,7 +184,13 @@ const CartScreen = ({ navigation }: Props) => {
           </View>
           <TouchableOpacity
             style={styles.checkoutButton}
-            onPress={() => {
+            onPress={async () => {
+              const token = await AsyncStorage.getItem("token");
+              if (!token) {
+                alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+                navigation.navigate("Login");
+                return;
+              }
               if (cart?.totalPrice !== undefined) {
                 navigation.navigate("Payment", { totalPrice: cart.totalPrice });
               } else {

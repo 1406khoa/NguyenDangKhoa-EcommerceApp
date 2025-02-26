@@ -9,6 +9,7 @@ import CategoryCard from "../Components/HomeScreenComponents/CategoryCard";
 import { AntDesign } from "@expo/vector-icons";
 import { useRef } from "react";
 import { Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Slider from "@react-native-community/slider";
 import axios from "axios";
@@ -27,10 +28,11 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [products, setProducts] = useState<Product[]>([]); // dùng để lưu danh sách sản phẩm của danh mục hiện tại
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [allProducts, setAllProducts] = useState<Product[]>([]); // dùng để lưu danh sách tất cả sản phẩm
 
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(1000); // Giới hạn giá tối đa, có thể điều chỉnh
+  const [maxPrice, setMaxPrice] = useState(10000);
 
   const tempPrice = useRef(maxPrice);
 
@@ -38,10 +40,33 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
     (product) => product.price >= minPrice && product.price <= maxPrice
   );
 
+  // Lấy userId từ AsyncStorage
+  const fetchUserId = async () => {
+    try {
+      const userStr = await AsyncStorage.getItem("user");
+      if (!userStr) {
+        // Chưa đăng nhập
+        alert("Vui lòng đăng nhập để thanh toán");
+        navigation.navigate("Login");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      setUserId(user._id);
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy user:", error);
+    }
+  };
+
+  useEffect(() => {
+      (async () => {
+        await fetchUserId();
+      })();
+    }, []);
+
   // ✅ Hàm lấy số lượng sản phẩm trong giỏ hàng từ API
   const fetchCartLength = () => {
     axios
-      .get(`http://10.0.2.2:5000/api/cart/user123`)
+      .get(`http://10.0.2.2:5000/api/cart/${userId}`)
       .then((response) => {
         const items = response.data?.items ?? [];
         setCartLength(items.length);
@@ -56,7 +81,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
     useFocusEffect(
       useCallback(() => {
         fetchCartLength();
-      }, [])
+      }, [userId])
     );
 
   // ✅ Lấy danh sách sản phẩm cho ImageSlider (TẤT CẢ sản phẩm)
@@ -154,7 +179,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
 
         <Slider
           minimumValue={0}
-          maximumValue={2000}
+          maximumValue={10000}
           step={50}
           value={tempPrice.current} // Dùng giá trị tạm thời
           onValueChange={(value) => {

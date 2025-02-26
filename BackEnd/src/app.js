@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "../public/images")));
+const variantRoute = require("./routes/variantRoute");
 
 // Routes
 app.use("/api/products", require("./routes/productRoute"));
@@ -21,4 +22,14 @@ app.use("/api/cart", require("./routes/cartRoute"));
 
 // Thanh toán
 app.use("/api/payment", require("./routes/paymentRoute"));
+
+// biến thể
+app.use("/api/variants", variantRoute);
+
+
+app.use("/api/auth", require("./routes/authRoute"));
+
+app.use("/api/profile", require("./routes/profileRoute"));
+
+
 module.exports = app;

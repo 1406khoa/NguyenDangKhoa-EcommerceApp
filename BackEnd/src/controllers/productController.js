@@ -1,13 +1,18 @@
 const Product = require("../models/Product");
+const Variant = require("../models/Variant");
 
 const getAllProducts = async (req, res) => {
     try {
         const filter = req.query.category ? { category: req.query.category } : {};
         const products = await Product.find(filter);
+
         const formattedProducts = products.map(product => ({
             ...product._doc,
-            images: product.images.map(img => ({ uri: img })),
+            images: product.images.map(img => 
+                typeof img === "string" ? { uri: img } : img // ✅ Chỉ chuyển đổi nếu img là chuỗi
+            ),
         }));
+
         res.json(formattedProducts);
     } catch (err) {
         res.status(500).json({ message: "Lỗi khi lấy sản phẩm", error: err.message });
@@ -15,18 +20,31 @@ const getAllProducts = async (req, res) => {
 };
 
 
-// ✅ Lấy chi tiết 1 sản phẩm theo ID
+
 const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
-        }
-        res.json({ ...product._doc, images: product.images.map(img => ({ uri: img })) });
+      const product = await Product.findById(req.params.id);
+      if (!product) {
+        return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+      }
+      // Lấy tất cả biến thể của sản phẩm
+      const variants = await Variant.find({ productId: product._id });
+      const productData = {
+        ...product._doc,
+        images: product.images.map((img) => ({ uri: img })),
+        variants: variants.map((variant) => ({
+          _id: variant._id,
+          attributes: variant.attributes,
+          stock: variant.stock,
+          price: variant.price || product.price,
+          images: variant.images ? variant.images.map((img) => ({ uri: img })) : [],
+        })),
+      };
+      res.json(productData);
     } catch (err) {
-        res.status(500).json({ message: "Lỗi khi lấy sản phẩm", error: err.message });
+      res.status(500).json({ message: "Lỗi khi lấy sản phẩm", error: err.message });
     }
-};
+  };
 
 // ✅ Thêm sản phẩm mới
 const createProduct = async (req, res) => {
